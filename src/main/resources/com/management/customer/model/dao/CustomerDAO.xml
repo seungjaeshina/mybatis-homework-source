@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.management.customer.model.dao.CustomerDAO">
+
+    <resultMap type="CustomerDTO" id="customerResultMap">
+
+
+        <id property="customerCode" column="CUSTOMER_CODE"/>
+        <result property="customerName" column="CUSTOMER_NAME"/>
+        <result property="customerGender" column="CUSTOMER_GENDER"/>
+        <result property="customerAge" column="CUSTOMER_AGE"/>
+        <result property="categoryNo" column="CATEGORY_NO"/>
+        <result property="roomCode" column="ROOM_CODE"/>
+    </resultMap>
+
+    <select id="selectAllCustomerList" resultMap="customerResultMap">
+        SELECT  CUSTOMER_CODE
+             ,CUSTOMER_NAME
+             ,CUSTOMER_GENDER
+             ,CUSTOMER_AGE
+             ,CATEGORY_NO
+             ,ROOM_CODE
+        FROM  TBL_CUSTOMER
+        ORDER BY CUSTOMER_CODE
+    </select>
+
+
+    <select id="selectCustomerByCondition" parameterType="SearchCondition" resultMap="customerResultMap">
+        SELECT  CUSTOMER_CODE
+        ,CUSTOMER_NAME
+        ,CUSTOMER_GENDER
+        ,CUSTOMER_AGE
+        ,CATEGORY_NO
+        ,ROOM_CODE
+        FROM   TBL_CUSTOMER
+        <where>
+            <choose>
+                <when test="option != null and option eq 'customerName'">
+                    CUSTOMER_NAME LIKE CONCAT('%', #{ value }, '%')
+                </when>
+                <when test="option != null and option eq 'customerGender'">
+                    CUSTOMER_GENDER LIKE CONCAT('%', #{ value }, '%')
+                </when>
+            </choose>
+        </where>
+        ORDER BY CUSTOMER_NAME <!-- 수정된 부분 -->
+    </select>
+
+
+    <insert id="insertCustomer" parameterType="CustomerDTO">
+        INSERT INTO
+            TBL_CUSTOMER (CUSTOMER_NAME, CUSTOMER_GENDER, CUSTOMER_AGE, CATEGORY_NO, ROOM_CODE)
+        VALUES
+            ( #{customerName}, #{customerGender}, #{customerAge}, #{categoryNo}, #{roomCode})
+    </insert>
+    <update id="updateCustomer" parameterType="CustomerDTO">
+        UPDATE TBL_CUSTOMER
+        <set>
+            <if test="customerName != null and customerName neq 'SKIP'">
+                CUSTOMER_NAME = #{customerName}
+            </if>
+            <if test="customerGender != null and customerGender neq 'SKIP'">
+                , CUSTOMER_GENDER = #{customerGender}
+            </if>
+            <if test="customerAge != null and customerAge neq 'SKIP'">
+                , CUSTOMER_AGE = #{customerAge}
+            </if>
+            <if test="categoryNo != null and categoryNo neq 'SKIP'">
+                , CATEGORY_NO = #{categoryNo}
+            </if>
+            <if test="roomCode != null and roomCode neq 'SKIP'">
+                , ROOM_CODE = #{roomCode}
+            </if>
+        </set>
+        WHERE CUSTOMER_CODE = #{customerCode}
+    </update>
+
+    <delete id="deleteCustomer" parameterType="hashMap">
+        DELETE
+        FROM TBL_CUSTOMER
+        WHERE CUSTOMER_CODE = #{customerCode}
+    </delete>
+</mapper>
